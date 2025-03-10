@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manipulasi Tabel Data Kawan</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        input, select {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 5px;
+        }
+
+        .delete-btn {
+            background-color: red;
+            color: white;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .edit-btn {
+            padding: 5px 10px;
+            background-color: green;
+            color: white;
+            cursor: pointer;
+        }
+
+        .ok-cancel-btns {
+            display: flex;
+            gap: 10px;
+        }
+
+        .ok-cancel-btns button {
+            padding: 5px 10px;
+        }
+
+        #addRowButton {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: blue;
+            color: white;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>Data Kawan Kampus</h1>
+
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>NIM</th>
+                <th>Nama</th>
+                <th>Kelas</th>
+                <th>Prodi</th>
+                <th>Alamat</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data Awal -->
+            <tr>
+                <td>1</td>
+                <td>123456789</td>
+                <td>Ali</td>
+                <td>A1</td>
+                <td>Informatika</td>
+                <td>Jalan ABC No. 1</td>
+                <td><button class="delete-btn">Delete</button></td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>987654321</td>
+                <td>Wati</td>
+                <td>A2</td>
+                <td>Manajemen</td>
+                <td>Jalan DEF No. 2</td>
+                <td><button class="delete-btn">Delete</button></td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>192837465</td>
+                <td>Budi</td>
+                <td>B1</td>
+                <td>Teknik Sipil</td>
+                <td>Jalan GHI No. 3</td>
+                <td><button class="delete-btn">Delete</button></td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td>102938475</td>
+                <td>Siti</td>
+                <td>B2</td>
+                <td>Arsitektur</td>
+                <td>Jalan JKL No. 4</td>
+                <td><button class="delete-btn">Delete</button></td>
+            </tr>
+            <tr>
+                <td>5</td>
+                <td>567890123</td>
+                <td>Rudi</td>
+                <td>C1</td>
+                <td>Ekonomi</td>
+                <td>Jalan MNO No. 5</td>
+                <td><button class="delete-btn">Delete</button></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <button id="addRowButton">Add Row</button>
+
+    <script>
+        const dataTable = document.getElementById('dataTable');
+        const addRowButton = document.getElementById('addRowButton');
+
+        // Fungsi untuk membuat input dan tombol OK/Cancel pada saat double klik cell
+        function createEditCell(cell, oldValue, type, row, colIndex) {
+            const input = document.createElement(type);
+            input.value = oldValue;
+
+            const okCancelDiv = document.createElement('div');
+            okCancelDiv.classList.add('ok-cancel-btns');
+
+            const okButton = document.createElement('button');
+            okButton.textContent = 'OK';
+            const cancelButton = document.createElement('button');
+            cancelButton.textContent = 'Cancel';
+
+            okCancelDiv.appendChild(okButton);
+            okCancelDiv.appendChild(cancelButton);
+
+            cell.innerHTML = ''; // Clear existing content
+            cell.appendChild(input);
+            cell.appendChild(okCancelDiv);
+
+            okButton.addEventListener('click', function() {
+                if (colIndex === 1 && isNaN(input.value)) {
+                    alert("NIM harus angka!");
+                    return;
+                }
+                if (colIndex === 2 && !/^[A-Za-z ]+$/.test(input.value)) {
+                    alert("Nama harus terdiri dari huruf A-Z!");
+                    return;
+                }
+
+                // Update the table cell value
+                cell.textContent = input.value;
+
+                // Update the value in the row data
+                row.cells[colIndex].textContent = input.value;
+            });
+
+            cancelButton.addEventListener('click', function() {
+                cell.textContent = oldValue; // Reset to old value
+            });
+        }
+
+        // Fungsi untuk menangani double-click pada setiap cell
+        dataTable.addEventListener('dblclick', function(event) {
+            const cell = event.target;
+            const row = cell.parentNode;
+            const colIndex = cell.cellIndex;
+            const oldValue = cell.textContent;
+
+            // Hindari editing kolom No (index 0)
+            if (colIndex === 0) return;
+
+            if (colIndex === 1) {
+                // Kolom NIM hanya bisa diinput angka
+                createEditCell(cell, oldValue, 'input', row, colIndex);
+            } else if (colIndex === 2) {
+                // Kolom Nama hanya bisa diinput huruf A-Z
+                createEditCell(cell, oldValue, 'input', row, colIndex);
+            } else {
+                // Kolom lainnya bisa diinput teks
+                createEditCell(cell, oldValue, 'input', row, colIndex);
+            }
+        });
+
+        // Fungsi untuk menghapus baris data
+        dataTable.addEventListener('click', function(event) {
+            if (event.target && event.target.classList.contains('delete-btn')) {
+                const row = event.target.closest('tr');
+                row.remove();
+                updateRowNumbers();
+            }
+        });
+
+        // Fungsi untuk menambah baris baru
+        addRowButton.addEventListener('click', function() {
+            const newRow = dataTable.insertRow();
+            const rowCount = dataTable.rows.length - 1;
+
+            // Menambahkan dummy value
+            newRow.innerHTML = `
+                <td>${rowCount}</td>
+                <td>000000000</td>
+                <td>Nama Baru</td>
+                <td>B3</td>
+                <td>Prodi Baru</td>
+                <td>Alamat Baru</td>
+                <td><button class="delete-btn">Delete</button></td>
+            `;
+            updateRowNumbers();
+        });
+
+        // Fungsi untuk memperbarui nomor urut setelah penghapusan atau penambahan
+        function updateRowNumbers() {
+            const rows = dataTable.querySelectorAll('tbody tr');
+            rows.forEach((row, index) => {
+                row.cells[0].textContent = index + 1; // Update nomor urut
+            });
+        }
+    </script>
+
+</body>
+</html>
